@@ -2,41 +2,43 @@ const path = require('path');
 const express = require("express");
 const bodyParser = require('body-parser');
 const logger = require('./utils/logger.js');
-const STATUS_CODE = require("./constants/statusCode.js");
+const { STATUS_CODE } = require("./constants/statusCode.js");
 const productRouting = require("./routing/product.js");
 const logoutRouting = require("./routing/logout.js");
 const homeRouting = require("./routing/home.js");
-const http = require("http");
+const killRouting = require("./routing/kill.js");
 const config = require("./config");
-const requestRouting = require("./routing/routing");
 
 const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true })); 
 
-//
-const requestListener = (request, response) => {
-  requestRouting(request, response);
-};
+app.use((request, response, next) => {
+  logger.getInfoLog;
+  next(); 
+});
+  
+app.use("/product", (request, response, next) => {
+  response.send(productRouting.router);
+});
 
-const server = http.createServer(requestListener);
+app.use("/logout", (request, response, next) => {
+  response.send(logoutRouting.router);
+});
 
-server.listen(config.PORT);
-//
+app.use("/kill", (request, response, next) => {
+  response.send(killRouting.router);
+});
+
+app.use("/", (request, response, next) => {
+  response.send(homeRouting.router);
+});
 
 app.use((request, response, next) => {
-  console.log(`request: ${request.method} ${request.url}`);
-  next(); 
-  });
-  
+  response.status(STATUS_CODE.NOT_FOUND).sendFile(path.join(__dirname, "./views", "404.html"))
+  logger.getErrorLog;
+});
 
-
-/*
-  Zarejestruj middleware obsługujące poszczególne ścieżki.  
-*/
-/*
-  Obsłuż stronę 404 – zwróć plik 404.html i zaloguj błąd.   
-*/
-/*
-  Uruchom serwer i nasłuchuj na porcie z config.js.    
-*/
+app.listen(config.PORT, () => {
+  console.log(`Server works on ${PORT}`);
+});

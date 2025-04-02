@@ -22,6 +22,6 @@ const renderNewProductPage = (response) => {
   });
 };
 
-module.exports = renderNewProductPage;
+module.exports = { renderNewProductPage }
 
 

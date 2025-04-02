@@ -5,11 +5,11 @@ const renderNewProductPage = require("../views/renderNewProductPage.js");
 const express = require("express");
 const router = express.Router(); 
 
-router.get("/add", (req, res) => {
+router.get("/add", (request, response) => {
   response.sendFile(path.join(__dirname, "../views", "add-product.html"));
 });
 
-router.post("/add", (req, res) => {
+router.post("/add", (request, response) => {
   const body = [];
 
   request.on("data", (chunk) => {
@@ -20,14 +20,14 @@ router.post("/add", (req, res) => {
     const parsedBody = Buffer.concat(body).toString();
     const formData = parsedBody.split("&").map((entry) => {
       const [key, value] = entry.split("=");
-
       return `${key}: ${decodeURIComponent(value)}`;
     });
 
-    fileSystem.writeFile(
-      "product.txt",
-      `${formData[0]}, ${formData[1]}`,
-      (err) => {
+    fileSystem.writeFile("product.txt",`${formData[0]}, ${formData[1]}`,(err) => {
+        if (err) {
+          console.error("Error");
+          return;
+        }
         response.statusCode = STATUS_CODE.FOUND;
         response.setHeader("Location", "/product/new");
 
@@ -37,55 +37,14 @@ router.post("/add", (req, res) => {
   });
 });
 
-router.get("/new", (req, res) => {
-  response.send();
+router.get("/new", (request, response) => {
+  fs.readFile("product.txt", "utf-8", (err, data) => {
+    if (err) {
+        console.error("Error");
+        return;
+    }
+    response.send(renderNewProductPage(data));
+  });
 });
 
-
-const productRouting = (request, response) => {
-  const { url, method } = request;
-
-  if (url.includes("add") && method === "GET") {
-    return renderAddProductPage(response);
-  }
-
-  if (url.includes("add") && method === "POST") {
-    return addNewProduct(request, response);
-  }
-
-  if (url.includes("new")) {
-    return renderNewProductPage(response);
-  }
-
-  console.warn(`ERROR: requested url ${url} doesn't exist.`);
-  return;
-};
-
-
-const addNewProduct = (request, response) => {
-  const body = [];
-  request.on("data", (chunk) => {
-    body.push(chunk);
-  });
-  request.on("end", () => {
-    const parsedBody = Buffer.concat(body).toString();
-    const formData = parsedBody.split("&").map((entry) => {
-      const [key, value] = entry.split("=");
-
-      return `${key}: ${decodeURIComponent(value)}`;
-    });
-
-    fileSystem.writeFile(
-      "product.txt",
-      `${formData[0]}, ${formData[1]}`,
-      (err) => {
-        response.statusCode = STATUS_CODE.FOUND;
-        response.setHeader("Location", "/product/new");
-
-        return response.end();
-      }
-    );
-  });
-};
-
-module.exports = { productRouting };
+module.exports = { router };

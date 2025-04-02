@@ -1,6 +1,3 @@
-// 🔄 Refactoro the Changer  
-// Przenieś teraz odpowiednie wywołania logów z routing.js i zastąp tam logowanie bezpośrednie wywołaniem tych funkcji.
-
 const getInfoLog = (url, method) => {
   console.log(`INFO (${new Date(Date.now()).toUTCString()}): ${method} - ${url}`);
 };
