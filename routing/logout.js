@@ -1,16 +1,9 @@
-const logoutRouting = (method, response) => {
-  response.setHeader("Content-Type", "text/html");
-  response.write("<html>");
-  response.write("<head><title>Shop - Logout</title></head>");
-  response.write("<body>");
-  response.write("<h1>Logout</h1>");
-  response.write(
-    "<nav><a href='/'>Home</a><br /><a href='/kill'>Logout from application</a></nav>"
-  );
-  response.write("</body>");
-  response.write("</html>");
+const path = require("path");
+const express = require("express");
+const router = express.Router();
 
-  return response.end();
-};
+router.get("/", (req, res) => {
+  response.sendFile(path.join(__dirname, "../views", "logout.html"));
+});
 
-module.exports = { logoutRouting };
+module.exports = { router };
